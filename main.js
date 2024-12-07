@@ -11,20 +11,23 @@ const invalidDescription = document.querySelector(".invalid-description");
 
 const deleteBtn = document.querySelector("#deleteBtn");
 
+const search = document.querySelector("#search");
 
 let courses = [];
 
 if(localStorage.getItem("courses")!=null){ // اذا في داتا في اللوكال حطها بالارري واعرضها واذا فش عادي روح ضيف من الاول وثاني وثالث مرة بكونن موجودات
     courses = JSON.parse(localStorage.getItem("courses")); // convert to Array of objects from JSON
-    displayCourses();
+    displayCourses(); // display the courses that stored in local storage once the user open the page
 }
 
 const addBtn = document.querySelector("#click");
 
+// when clicking on Add Course button => validate the constraints and 
 addBtn.addEventListener("click",(e)=>{
     e.preventDefault();
     let isValid = true;
 
+    // check constraints (true or false)
     const namePattern = /^[A-Z][a-z]{2,10}$/; // لكن لازم يكون عدد احرف السمول من 2-10 a-z ومن ثم اجباري حرف سمول من  A-Z بدي سترنج اجباري الابتداء بحرف كابيتال من 
     console.log(namePattern.test(name.value));
     if(!namePattern.test(name.value)){
@@ -39,7 +42,7 @@ addBtn.addEventListener("click",(e)=>{
     }
 
     const categoryPattern = /^[A-Z][a-z]{2,8}$/; // لكن لازم يكون عدد احرف السمول من 2-8 a-z ومن ثم اجباري حرف سمول من  A-Z بدي سترنج اجباري الابتداء بحرف كابيتال من 
-    console.log(categoryPattern.test(name.value));
+    console.log(categoryPattern.test(cartegory.value));
     if(!categoryPattern.test(cartegory.value)){
         invalidCategory.innerHTML = "this category is invalid!! it must start with a capital letter and contain 2-8 small letters.";
         cartegory.classList.add("is-invalid");
@@ -108,20 +111,12 @@ addBtn.addEventListener("click",(e)=>{
             icon: "success",
             title: "new course added successfully"
           });
-    
-    
-        displayCourses(); // every click on Add Course will display All Courses
-        invalidName.innerHTML=""; // عشان ضفنا صح اذا الخط الاحمر تحت الاسم ينشال
-        name.classList.remove("is-invalid"); 
-        name.classList.add("is-valid"); 
-    }
-   
 
+        displayCourses(); // every click on Add Course will display All Courses
+    }
 });
 
-// console.log(name,cartegory,price,description,capacity);
-
-
+// view all courses
 function displayCourses(){ // decleration function not expression because declaration can be hoisting when revoking it
     const result = courses.map((course,index)=>{
         return `
@@ -143,7 +138,7 @@ function displayCourses(){ // decleration function not expression because declar
 };
 
 
-
+// delete specific course
 function deleteCourse(index){
 
     const swalWithBootstrapButtons = Swal.mixin({
@@ -186,10 +181,37 @@ function deleteCourse(index){
       });
 }
 
+// search for course
+search.addEventListener("input",(e)=>{ // اول ما اليوزر يكتب جواته بتكرر على عدد الانبوتس فيه او لما امسح الانبوتس كذلك على عدد الاحرف
+  const keyword = search.value; // serach المكتوب في ال input لل value تحضر ال
+  const coursesResult = courses.filter( (course) => {
+    return course.name.toLowerCase().includes(keyword.toLowerCase()); // اي حرف من حروف اسم الكورس اذا كان متطابق بحسبه
+  })
 
+  // print corresponding search results
+  const result = coursesResult.map((course,index)=>{
+    return `
+        <tr>
+            <td>${index}</td>
+            <td>${course.name}</td>
+            <td>${course.cartegory}</td>
+            <td>${course.price}</td>
+            <td>${course.description}</td>
+            <td>${course.capacity}</td>
+            <td>
+                <button class="btn btn-danger" onclick='deleteCourse(${index})'>delete</button>
+            </td>
+        </tr>
+    `
+}).join(' ');
+
+document.querySelector('#data').innerHTML = result;
+
+})
+
+// delete all courses
 deleteBtn.addEventListener("click", ()=>{
 
-    
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: "btn btn-success",
@@ -230,23 +252,3 @@ deleteBtn.addEventListener("click", ()=>{
       });
 
 });
-
-
-
-/*
-const arrObjects = [ // not all is strings
-    {
-        id:"1",
-        name:"php",
-    },
-    {
-        id:2,
-        name:"js",
-    },
-];
-
-const arrJson = [ // all is strings => from API
-    {"id":"1","name":"php"},
-    {"id":"2","name":"js"}
-]
-*/
